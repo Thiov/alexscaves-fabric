@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "alexscaves",
+  "version": "${version}",
+  "name": "Alex's Caves",
+  "description": "Explore new rare cave biomes hidden under the surface of the Overworld...",
+  "authors": [
+    "Alexthe668, Noonyeyz"
+  ],
+  "license": "GNU LESSER GENERAL PUBLIC LICENSE",
+  "icon": "assets/alexscaves/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.github.alexmodguy.alexscaves.fabric.AlexsCavesFabric"
+    ],
+    "client": [
+      "com.github.alexmodguy.alexscaves.fabric.AlexsCavesFabricClient"
+    ],
+    "fabric-datagen": [
+      "com.github.alexmodguy.alexscaves.fabric.AlexsCavesFabricDataGen"
+    ]
+  },
+  "mixins": [
+    "alexscaves.mixins.json"
+  ],
+  "accessWidener": "alexscaves.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "fabric-api": "*",
+    "minecraft": "~26.1.2",
+    "java": ">=25"
+  },
+  "suggests": {
+    "jei": "*"
+  },
+  "breaks": {
+    "citadel": "*"
+  }
+}

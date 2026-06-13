@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // 26.1 source is written against Mojang-named (mojmap) Minecraft, so this is a
+    // non-remapping build: the official Minecraft jar is used directly (no intermediary
+    // mappings), Fabric is a plain `implementation` dependency, and the package task is
+    // the standard `jar` rather than loom's `remapJar`.
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    compileOnly "mezz.jei:jei-26.1-fabric-api:${jei_version}"
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/alexscaves.accesswidener')
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand version: project.version
+    }
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
