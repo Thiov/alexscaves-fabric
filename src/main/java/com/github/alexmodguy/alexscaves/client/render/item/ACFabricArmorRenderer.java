@@ -68,12 +68,13 @@ public class ACFabricArmorRenderer {
             return;
         }
         Identifier texture = textureFor(item, slot);
-        // The diving suit's helmet has a semi-transparent front glass visor; cutout (alpha-test) renders it
-        // solid, so use a translucent render type for it (upstream rendered diving armor with entityTranslucent).
-        // Everything else stays armorCutoutNoCull.
-        net.minecraft.client.renderer.rendertype.RenderType renderType = item instanceof DivingArmorItem
-            ? RenderTypes.armorTranslucent(texture)
-            : RenderTypes.armorCutoutNoCull(texture);
+        // All AC armor (incl. the diving suit) renders with armorCutoutNoCull, matching upstream. The diving
+        // helmet's "glass" visor is a binary-alpha cutout HOLE in diving_suit_0.png (no semi-transparent
+        // pixels), so alpha-test discards it and you see the wearer's face through it. Rendering diving with a
+        // translucent type instead removed the alpha-test, filling the hole with the dome's opaque bronze
+        // interior — which is the visor bug. Upstream never used a translucent type for diving (only Darkness/
+        // Rainbounce implement CustomArmorPostRender); diving falls through to vanilla armorCutoutNoCull.
+        net.minecraft.client.renderer.rendertype.RenderType renderType = RenderTypes.armorCutoutNoCull(texture);
         // Mirror vanilla EquipmentLayerRenderer's submit EXACTLY. The 8-arg default overload maps its
         // 7th int to outlineColor (it hardcodes tintedColor=-1, sprite=null), so passing -1 there set
         // outlineColor=-1. Since armorCutoutNoCull is AFFECTS_OUTLINE, the deferred ModelFeatureRenderer
