@@ -137,14 +137,10 @@ public class ACFabricArmorRenderer {
         switch (slot) {
             case HEAD -> {
                 model.head.visible = true;
-                // HumanoidModel.createMesh auto-adds an inflated (deformation.extend(0.5)) vanilla "hat"
-                // overlay as a child of head. AC helmets build their shape from the head box + custom child
-                // parts and do NOT intend to use this overlay; when a helmet texture leaves it opaque it sits
-                // ~1px in front of the head and paints over any visor/porthole (this was the diving-helmet
-                // bronze-visor bug). So keep the hat hidden for all AC helmets EXCEPT Darkness, whose hood
-                // texture intentionally uses the overlay (and has no visor behind it). Any future visored AC
-                // helmet is therefore safe by default.
-                model.hat.visible = model instanceof DarknessArmorModel;
+                // model.hat stays hidden (set false above). The inherited vanilla "hat" overlay that
+                // createMesh auto-adds as a child of head is neutralized to empty geometry in every AC armor
+                // model (see e.g. DivingArmorModel) because AC helmets build their own head geometry; leaving
+                // that opaque overlay on is what hid the diving porthole. Do not re-enable it here.
             }
             case CHEST -> {
                 model.body.visible = true;

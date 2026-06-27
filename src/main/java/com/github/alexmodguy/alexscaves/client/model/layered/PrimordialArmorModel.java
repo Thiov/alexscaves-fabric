@@ -27,6 +27,10 @@ public class PrimordialArmorModel extends HumanoidModel {
         PartDefinition rightLeg = partdefinition.getChild("right_leg");
         PartDefinition leftArm = partdefinition.getChild("left_arm");
         PartDefinition rightArm = partdefinition.getChild("right_arm");
+        // Drop the inherited inflated vanilla "hat" overlay that createMesh auto-adds as a CHILD OF head.
+        // AC helmets build their own head geometry, so the overlay is unwanted cruft that can cover detail
+        // (an opaque one is what hid the diving porthole). Zero it on head (not the root).
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
         CubeDeformation deformationHelmet = deformation.extend(0.02F);
         CubeDeformation deformationTunic = deformation.extend(0.25F);

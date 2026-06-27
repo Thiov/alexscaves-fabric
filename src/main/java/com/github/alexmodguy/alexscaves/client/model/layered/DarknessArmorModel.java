@@ -32,6 +32,10 @@ public class DarknessArmorModel  extends HumanoidModel {
         PartDefinition head = partdefinition.getChild("head");
         PartDefinition body = partdefinition.getChild("body");
 
+        // Drop the inherited inflated vanilla "hat" overlay createMesh auto-adds as a CHILD OF head. The
+        // visible hood is the separate "hood" child below (texOffs 32,0 inflated 1.5); the inherited hat
+        // (inflated 1.0) sits hidden inside it as redundant cruft. Zero it on head (not the root).
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
         head.addOrReplaceChild("hood", CubeListBuilder.create().texOffs(68, 112).addBox(-6.0F, -2.0F, -5.5F, 12.0F, 4.0F, 12.0F, new CubeDeformation(0))
                 .texOffs(32, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(1.5F)), PartPose.offset(0.0F, 0.0F, 0.0F));

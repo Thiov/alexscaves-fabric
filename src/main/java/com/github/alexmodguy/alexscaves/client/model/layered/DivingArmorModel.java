@@ -25,7 +25,7 @@ public class DivingArmorModel extends HumanoidModel {
         // at z=-5 — directly in front of (and coplanar with) the visor porthole/plate — so it paints a solid
         // bronze disc over the porthole and z-fights the visor. AC meant to zero it out but added the empty
         // "hat" to the ROOT partdefinition instead of head, leaving the real one intact. Target head here.
-        head.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(32, 0).addBox(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, deformation), PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
         head.addOrReplaceChild("helmet", CubeListBuilder.create()
                 .texOffs(0, 32).addBox(4.0F, -5.0F, -3.0F, 2.0F, 4.0F, 4.0F, deformation)
