@@ -68,13 +68,8 @@ public class ACFabricArmorRenderer {
             return;
         }
         Identifier texture = textureFor(item, slot);
-        // All AC armor (incl. the diving suit) renders with armorCutoutNoCull, matching upstream. The diving
-        // helmet's "glass" visor is a binary-alpha cutout HOLE in diving_suit_0.png (no semi-transparent
-        // pixels), so alpha-test discards it and you see the wearer's face through it. Rendering diving with a
-        // translucent type instead removed the alpha-test, filling the hole with the dome's opaque bronze
-        // interior — which is the visor bug. Upstream never used a translucent type for diving (only Darkness/
-        // Rainbounce implement CustomArmorPostRender); diving falls through to vanilla armorCutoutNoCull.
         net.minecraft.client.renderer.rendertype.RenderType renderType = RenderTypes.armorCutoutNoCull(texture);
+        int tintedColor = -1;
         // Mirror vanilla EquipmentLayerRenderer's submit EXACTLY. The 8-arg default overload maps its
         // 7th int to outlineColor (it hardcodes tintedColor=-1, sprite=null), so passing -1 there set
         // outlineColor=-1. Since armorCutoutNoCull is AFFECTS_OUTLINE, the deferred ModelFeatureRenderer
@@ -83,7 +78,7 @@ public class ACFabricArmorRenderer {
         // core 10-arg overload with outlineColor=0 (like vanilla) suppresses that stray outline pass.
         collector.submitModel(model, renderState, poseStack, renderType,
             light, OverlayTexture.NO_OVERLAY,
-            -1,    // tintedColor (no dye)
+            tintedColor,    // DIAGNOSTIC: magenta for diving, -1 (no tint) otherwise
             null,  // sprite (standalone texture lives in the RenderType)
             0,     // outlineColor — no entity-outline pass
             (ModelFeatureRenderer.CrumblingOverlay) null);
@@ -142,7 +137,14 @@ public class ACFabricArmorRenderer {
         switch (slot) {
             case HEAD -> {
                 model.head.visible = true;
-                model.hat.visible = true;
+                // HumanoidModel.createMesh auto-adds an inflated (deformation.extend(0.5)) vanilla "hat"
+                // overlay as a child of head. AC helmets build their shape from the head box + custom child
+                // parts and do NOT intend to use this overlay; when a helmet texture leaves it opaque it sits
+                // ~1px in front of the head and paints over any visor/porthole (this was the diving-helmet
+                // bronze-visor bug). So keep the hat hidden for all AC helmets EXCEPT Darkness, whose hood
+                // texture intentionally uses the overlay (and has no visor behind it). Any future visored AC
+                // helmet is therefore safe by default.
+                model.hat.visible = model instanceof DarknessArmorModel;
             }
             case CHEST -> {
                 model.body.visible = true;
