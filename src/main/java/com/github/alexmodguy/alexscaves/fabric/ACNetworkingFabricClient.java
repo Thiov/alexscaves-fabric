@@ -7,9 +7,13 @@ import com.github.alexmodguy.alexscaves.server.message.UpdateBossBarMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateBossEruptionStatus;
 import com.github.alexmodguy.alexscaves.server.message.UpdateCaveBiomeMapTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateEffectVisualityEntityMessage;
+import com.github.alexmodguy.alexscaves.server.message.UpdateCitadelTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateItemTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateMagneticDataMessage;
 import com.github.alexmodguy.alexscaves.server.message.WorldEventMessage;
+import com.github.alexthe666.citadel.Citadel;
+import com.github.alexthe666.citadel.ClientProxy;
+import com.github.alexthe666.citadel.server.message.AnimationMessage;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
@@ -25,6 +29,19 @@ public final class ACNetworkingFabricClient {
         }
         initialized = true;
 
+        // Astryxion's standalone Citadel (Fabric) never sets its ClientProxy, so Citadel.PROXY stays the
+        // base ServerProxy whose handleAnimationPacket is a no-op. Install a minimal client proxy (only if a
+        // real ClientProxy isn't already present) so AnimationMessage.handleClient can apply animations.
+        if (!(Citadel.PROXY instanceof ClientProxy)) {
+            Citadel.setClientProxy(new ACCitadelClientProxy());
+        }
+        // Citadel registers citadel:animation as a clientbound payload TYPE but wires NO client receiver
+        // (it has no client entrypoint). Without this, the server's AnimationMessage is decoded then dropped,
+        // so attack/roar/bite animations never play. handleClient routes to Citadel.PROXY.handleAnimationPacket.
+        ClientPlayNetworking.registerGlobalReceiver(AnimationMessage.TYPE, (payload, context) ->
+            AnimationMessage.handleClient(payload)
+        );
+
         registerReceiver(BeholderSyncMessage.TYPE, BeholderSyncMessage::handle);
         registerReceiver(SpelunkeryTableCompleteTutorialMessage.TYPE, SpelunkeryTableCompleteTutorialMessage::handle);
         registerReceiver(SundropRainbowMessage.TYPE, SundropRainbowMessage::handle);
@@ -33,6 +50,7 @@ public final class ACNetworkingFabricClient {
         registerReceiver(UpdateCaveBiomeMapTagMessage.TYPE, UpdateCaveBiomeMapTagMessage::handle);
         registerReceiver(UpdateEffectVisualityEntityMessage.TYPE, UpdateEffectVisualityEntityMessage::handle);
         registerReceiver(UpdateItemTagMessage.TYPE, UpdateItemTagMessage::handle);
+        registerReceiver(UpdateCitadelTagMessage.TYPE, UpdateCitadelTagMessage::handle);
         registerReceiver(UpdateMagneticDataMessage.TYPE, UpdateMagneticDataMessage::handle);
         registerReceiver(WorldEventMessage.TYPE, WorldEventMessage::handle);
     }

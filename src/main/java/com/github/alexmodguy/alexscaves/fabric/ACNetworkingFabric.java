@@ -14,6 +14,7 @@ import com.github.alexmodguy.alexscaves.server.message.UpdateBossBarMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateBossEruptionStatus;
 import com.github.alexmodguy.alexscaves.server.message.UpdateCaveBiomeMapTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateEffectVisualityEntityMessage;
+import com.github.alexmodguy.alexscaves.server.message.UpdateCitadelTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateItemTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateMagneticDataMessage;
 import com.github.alexmodguy.alexscaves.server.message.WorldEventMessage;
@@ -60,6 +61,9 @@ public final class ACNetworkingFabric {
         // Citadel's own payloads (AnimationMessage, PropertiesMessage, DanceJukeboxMessage, tick-rate, ...)
         // are registered by the standalone Citadel mod itself; AC must NOT re-register them (duplicate type).
         registerBidirectional(UpdateItemTagMessage.TYPE, UpdateItemTagMessage.CODEC, UpdateItemTagMessage::handle);
+        // AC-owned cave-book sync. Replaces Citadel's PropertiesMessage, which the standalone Citadel
+        // registers serverbound (C2S) ONLY — AC also needs the server→client direction (see CaveBookProgress).
+        registerBidirectional(UpdateCitadelTagMessage.TYPE, UpdateCitadelTagMessage.CODEC, UpdateCitadelTagMessage::handle);
     }
 
     static <T extends CustomPacketPayload> void handleClientbound(T payload, Player player, PayloadHandler<T> handler) {
