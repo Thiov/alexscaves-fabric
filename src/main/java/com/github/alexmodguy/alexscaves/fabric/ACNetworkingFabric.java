@@ -17,8 +17,6 @@ import com.github.alexmodguy.alexscaves.server.message.UpdateEffectVisualityEnti
 import com.github.alexmodguy.alexscaves.server.message.UpdateItemTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateMagneticDataMessage;
 import com.github.alexmodguy.alexscaves.server.message.WorldEventMessage;
-import com.github.alexthe666.citadel.server.message.AnimationMessage;
-import com.github.alexthe666.citadel.server.message.PropertiesMessage;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -59,12 +57,8 @@ public final class ACNetworkingFabric {
         registerS2C(UpdateMagneticDataMessage.TYPE, UpdateMagneticDataMessage.CODEC);
         registerS2C(WorldEventMessage.TYPE, WorldEventMessage.CODEC);
 
-        // Citadel animation sync: server tells clients which animation an entity started. Without this
-        // registration ServerPlayNetworking.canSend(...) is false and the packet is silently dropped,
-        // so roar/bite/attack animations never play client-side on any IAnimatedEntity mob.
-        registerS2C(AnimationMessage.TYPE, AnimationMessage.CODEC);
-
-        registerBidirectional(PropertiesMessage.TYPE, PropertiesMessage.CODEC, PropertiesMessage::handle);
+        // Citadel's own payloads (AnimationMessage, PropertiesMessage, DanceJukeboxMessage, tick-rate, ...)
+        // are registered by the standalone Citadel mod itself; AC must NOT re-register them (duplicate type).
         registerBidirectional(UpdateItemTagMessage.TYPE, UpdateItemTagMessage.CODEC, UpdateItemTagMessage::handle);
     }
 

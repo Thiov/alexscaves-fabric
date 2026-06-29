@@ -39,12 +39,10 @@
     "fabricloader": ">=0.19.2",
     "fabric-api": "*",
     "minecraft": "~26.1.2",
-    "java": ">=25"
+    "java": ">=25",
+    "citadel": "*"
   },
   "suggests": {
     "jei": "*"
-  },
-  "breaks": {
-    "citadel": "*"
   }
 }

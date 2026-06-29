@@ -10,8 +10,6 @@ import com.github.alexmodguy.alexscaves.server.message.UpdateEffectVisualityEnti
 import com.github.alexmodguy.alexscaves.server.message.UpdateItemTagMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateMagneticDataMessage;
 import com.github.alexmodguy.alexscaves.server.message.WorldEventMessage;
-import com.github.alexthe666.citadel.server.message.AnimationMessage;
-import com.github.alexthe666.citadel.server.message.PropertiesMessage;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
@@ -36,8 +34,6 @@ public final class ACNetworkingFabricClient {
         registerReceiver(UpdateEffectVisualityEntityMessage.TYPE, UpdateEffectVisualityEntityMessage::handle);
         registerReceiver(UpdateItemTagMessage.TYPE, UpdateItemTagMessage::handle);
         registerReceiver(UpdateMagneticDataMessage.TYPE, UpdateMagneticDataMessage::handle);
-        registerReceiver(PropertiesMessage.TYPE, PropertiesMessage::handle);
-        registerReceiver(AnimationMessage.TYPE, AnimationMessage::handle);
         registerReceiver(WorldEventMessage.TYPE, WorldEventMessage::handle);
     }
 
