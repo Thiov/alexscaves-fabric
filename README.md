@@ -14,11 +14,11 @@ each with its own blocks, mobs, items, and mechanics.
 | Java         | 25+              |
 | Fabric Loader| 0.19.2+          |
 | Fabric API   | 0.146.1+26.1.2   |
+| Citadel      | for 26.1.2       |
 
 [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) is supported but optional.
 
-> **Note:** This build bundles Citadel internally, so it conflicts with the
-> standalone Citadel mod (`breaks: citadel`).
+> **Note:** This build requires the standalone **Citadel** mod installed separately (the same Citadel that Alex's Mobs uses), so Alex's Caves and Alex's Mobs can be installed together.
 
 ## Building
 

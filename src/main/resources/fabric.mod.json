@@ -3,7 +3,7 @@
   "id": "alexscaves",
   "version": "${version}",
   "name": "Alex's Caves (Fabric)",
-  "description": "Unofficial Fabric port of Alex's Caves for Minecraft 26.1.2. Explore new rare cave biomes hidden under the surface of the Overworld. Original mod by Alexthe668 and Noonyeyz; this Fabric port is maintained by Thiov and is not affiliated with or endorsed by the original authors.",
+  "description": "Unofficial Fabric port of Alex's Caves for Minecraft 26.1.2. Explore new rare cave biomes hidden under the surface of the Overworld. Original mod by Alexthe668 and Noonyeyz; this Fabric port is maintained by Thiov and is not affiliated with or endorsed by the original authors. Requires the Citadel library, installed separately.",
   "authors": [
     "Alexthe668",
     "Noonyeyz"
