@@ -27,6 +27,15 @@ import net.minecraft.world.phys.Vec3;
 
 public class MushroomCloudParticle extends net.minecraft.client.particle.TextureSheetParticle {
 
+    // 26.1 removed ParticleRenderType.CUSTOM and Particle#render(VertexConsumer,Camera,float), so this
+    // particle's 3D model can no longer be drawn by the particle engine. Live instances are tracked here and
+    // drawn by LevelRendererMixin through the SubmitNodeBufferSource bridge (the same route as raygun beams).
+    private static final java.util.Set<MushroomCloudParticle> ACTIVE = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+
+    public static java.util.Collection<MushroomCloudParticle> active() {
+        return ACTIVE;
+    }
+
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(AlexsCaves.MODID, "textures/particle/mushroom_cloud.png");
     private static final Identifier TEXTURE_GLOW = Identifier.fromNamespaceAndPath(AlexsCaves.MODID, "textures/particle/mushroom_cloud_glow.png");
     private static final Identifier TEXTURE_PINK = Identifier.fromNamespaceAndPath(AlexsCaves.MODID, "textures/particle/mushroom_cloud_pink.png");
@@ -50,10 +59,17 @@ public class MushroomCloudParticle extends net.minecraft.client.particle.Texture
         this.scale = scale + 0.2F;
         this.setSize(3.0F, 3.0F);
         this.pink = pink;
+        ACTIVE.add(this);
     }
 
     public boolean shouldCull() {
         return false;
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        ACTIVE.remove(this);
     }
 
     public void tick() {
@@ -102,35 +118,37 @@ public class MushroomCloudParticle extends net.minecraft.client.particle.Texture
         Minecraft.getInstance().getSoundManager().queueTickingSound(new NuclearExplosionSound(soundEvent, this.x, this.y, this.z, duration, fadesAt, fadeInBy, looping));
     }
 
-    public void render(VertexConsumer vertexConsumer, Camera camera, float partialTick) {
-        Vec3 vec3 = camera.position();
+    /**
+     * Draws the 3D mushroom-cloud model into the supplied (capture) buffer, camera-relative, using the shared
+     * pose stack. Called from LevelRendererMixin during {@code submitEntities}; the caller flushes the buffer,
+     * so this must NOT call {@code endBatch()} or build its own pose stack (mirrors RaygunRenderHelper).
+     */
+    public void renderModel(PoseStack posestack, MultiBufferSource bufferSource, float partialTick) {
+        Vec3 vec3 = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         float f = (float) (Mth.lerp((double) partialTick, this.xo, this.x) - vec3.x());
         float f1 = (float) (Mth.lerp((double) partialTick, this.yo, this.y) - vec3.y());
         float f2 = (float) (Mth.lerp((double) partialTick, this.zo, this.z) - vec3.z());
-        PoseStack posestack = new PoseStack();
         posestack.pushPose();
         posestack.translate(f, f1 - 0.5F, f2);
         posestack.scale(-scale, -scale, scale);
-        MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
         MODEL.hideFireball(age >= BALL_FOR);
         float life = (float) (Math.log(1 + (age - BALL_FOR + partialTick) / (lifetime - BALL_FOR))) * 2F;
         float glowLife = life < 1F ? 1F - life : 0;
         int left = lifetime - age;
         float alpha = left <= FADE_SPEED ? left / (float) FADE_SPEED : 1.0F;
         MODEL.animateParticle(age, ACMath.smin(life, 1.0F, 0.5F), partialTick);
-        VertexConsumer baseConsumer = multibuffersource$buffersource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(pink ? TEXTURE_PINK : TEXTURE));
+        VertexConsumer baseConsumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(pink ? TEXTURE_PINK : TEXTURE));
         MODEL.renderToBuffer(posestack, baseConsumer, getLightColor(partialTick), OverlayTexture.NO_OVERLAY, ColorUtil.packColor(1.0F, 1.0F, 1.0F, alpha));
-        VertexConsumer glowConsumer1 = multibuffersource$buffersource.getBuffer(ACRenderTypes.getEyesAlphaEnabled(pink ? TEXTURE_PINK : TEXTURE));
+        VertexConsumer glowConsumer1 = bufferSource.getBuffer(ACRenderTypes.getEyesAlphaEnabled(pink ? TEXTURE_PINK : TEXTURE));
         MODEL.renderToBuffer(posestack, glowConsumer1, 240, OverlayTexture.NO_OVERLAY, ColorUtil.packColor(1.0F, 1.0F, 1.0F, alpha));
-        VertexConsumer glowConsumer2 = multibuffersource$buffersource.getBuffer(ACRenderTypes.getEyesAlphaEnabled(pink ? TEXTURE_PINK_GLOW : TEXTURE_GLOW));
+        VertexConsumer glowConsumer2 = bufferSource.getBuffer(ACRenderTypes.getEyesAlphaEnabled(pink ? TEXTURE_PINK_GLOW : TEXTURE_GLOW));
         MODEL.renderToBuffer(posestack, glowConsumer2, 240, OverlayTexture.NO_OVERLAY, ColorUtil.packColor(1.0F, 1.0F, 1.0F, glowLife * alpha));
-        multibuffersource$buffersource.endBatch();
         posestack.popPose();
     }
 
-    
+    // NO_RENDER: the particle engine's quad pipeline can't draw this 3D model; LevelRendererMixin does.
     public ParticleRenderType getGroup() {
-        return ParticleRenderType.SINGLE_QUADS;
+        return ParticleRenderType.NO_RENDER;
     }
 
     public static class Factory implements ParticleProvider<SimpleParticleType> {

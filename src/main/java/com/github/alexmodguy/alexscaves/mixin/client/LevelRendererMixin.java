@@ -62,4 +62,29 @@ public abstract class LevelRendererMixin {
         }
         capture.flushInto(collector, poseStack);
     }
+
+    /**
+     * Draws the nuclear mushroom-cloud 3D model(s). Upstream drew these from {@code Particle#render}, which
+     * 26.1 removed for custom (non-quad) particles; {@link com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle}
+     * now tracks its live instances and their model is rendered here through the same capture bridge as the
+     * raygun beams. The particle keeps ticking (sub-particles, sound, flash/shake) — only its model draw moves here.
+     */
+    @Inject(method = "submitEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V", at = @At("TAIL"))
+    private void alexscaves$renderMushroomClouds(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeCollector collector, CallbackInfo ci) {
+        if (com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle.active().isEmpty()) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
+        capture.bindLive(collector, poseStack);
+        for (com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle particle :
+                new java.util.ArrayList<>(com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle.active())) {
+            particle.renderModel(poseStack, capture, partialTick);
+        }
+        capture.flushInto(collector, poseStack);
+    }
 }

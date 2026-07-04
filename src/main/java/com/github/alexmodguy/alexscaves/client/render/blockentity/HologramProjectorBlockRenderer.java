@@ -4,7 +4,7 @@ import com.github.alexmodguy.alexscaves.client.ClientProxy;
 import com.github.alexmodguy.alexscaves.client.render.ACRenderTypes;
 import com.github.alexmodguy.alexscaves.server.block.blockentity.HologramProjectorBlockEntity;
 import com.github.alexmodguy.alexscaves.server.misc.ACMath;
-import com.github.alexthe666.citadel.client.shader.PostEffectRegistry;
+import com.github.alexmodguy.alexscaves.client.shader.ACPostEffectRegistry;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -78,7 +78,7 @@ public class HologramProjectorBlockRenderer<T extends HologramProjectorBlockEnti
     }
 
     private static void renderAt(HologramProjectorBlockEntity projectorBlockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn) {
-        PostEffectRegistry.renderEffectForNextTick(ClientProxy.HOLOGRAM_SHADER);
+        ACPostEffectRegistry.renderEffectForNextTick(ClientProxy.HOLOGRAM_SHADER);
         Entity holoEntity = projectorBlockEntity.getDisplayEntity(Minecraft.getInstance().level);
         float amount = projectorBlockEntity.getSwitchAmount(partialTicks);
         float ticks = projectorBlockEntity.tickCount + partialTicks;
@@ -153,7 +153,7 @@ public class HologramProjectorBlockRenderer<T extends HologramProjectorBlockEnti
     }
 
     private static void renderPlayerHologram(UUID lastPlayerUUID, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int i) {
-        PostEffectRegistry.renderEffectForNextTick(ClientProxy.HOLOGRAM_SHADER);
+        ACPostEffectRegistry.renderEffectForNextTick(ClientProxy.HOLOGRAM_SHADER);
         PlayerInfo playerInfo = getPlayerInfo(lastPlayerUUID);
         PlayerModelType skinModel = getPlayerSkinModel(playerInfo, lastPlayerUUID);
         if(playerModel == null || slimPlayerModel == null){

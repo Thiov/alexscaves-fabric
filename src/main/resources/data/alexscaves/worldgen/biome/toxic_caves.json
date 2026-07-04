@@ -30,10 +30,7 @@
       },
       "probability": 0.001
     },
-    "fog_color": 8781312,
-    "sky_color": 582913,
-    "water_color": 4944498,
-    "water_fog_color": 4944498
+    "water_color": 4944498
   },
   "features": [
     [],
@@ -127,7 +124,14 @@
       }
     ],
     "axolotls": [],
-    "creature": [],
+    "creature": [
+      {
+        "type": "alexscaves:raycat",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      }
+    ],
     "misc": [],
     "monster": [
       {
@@ -215,5 +219,10 @@
     ],
     "water_creature": []
   },
-  "temperature": 0.5
+  "temperature": 0.5,
+  "attributes": {
+    "minecraft:visual/fog_color": 8781312,
+    "minecraft:visual/sky_color": 582913,
+    "minecraft:visual/water_fog_color": 4944498
+  }
 }

@@ -2,7 +2,7 @@ package com.github.alexmodguy.alexscaves.client.render.entity;
 
 import com.github.alexmodguy.alexscaves.client.ClientProxy;
 import com.github.alexmodguy.alexscaves.server.entity.item.SpinningPeppermintEntity;
-import com.github.alexthe666.citadel.client.shader.PostEffectRegistry;
+import com.github.alexmodguy.alexscaves.client.shader.ACPostEffectRegistry;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,7 +23,7 @@ public class SpinningPeppermintRenderer extends EntityRenderer121X<SpinningPeppe
 
     public void render(SpinningPeppermintEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource source, int lightIn) {
         super.render(entity, entityYaw, partialTicks, poseStack, source, lightIn);
-        PostEffectRegistry.renderEffectForNextTick(ClientProxy.PURPLE_WITCH_SHADER);
+        ACPostEffectRegistry.renderEffectForNextTick(ClientProxy.PURPLE_WITCH_SHADER);
         float ageInTicks = partialTicks + entity.tickCount;
         float despawnsIn = entity.getDespawnTime(partialTicks);
         float minAge = Math.min(1F, Math.min(ageInTicks, despawnsIn) / 10F);
