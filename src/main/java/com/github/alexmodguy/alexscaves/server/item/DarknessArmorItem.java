@@ -111,10 +111,10 @@ public class DarknessArmorItem extends ArmorItem implements CustomArmorPostRende
                     if (modified) {
                         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
                     }
-                } else if (AlexsCaves.PROXY.getClientSidePlayer() == entity && getMeterProgress(stack) >= 1.0F && AlexsCaves.PROXY.isKeyDown(2)) {
-                    AlexsCaves.sendMSGToServer(new ArmorKeyMessage(EquipmentSlot.CHEST.ordinal(), living.getId(), 2));
-                    onKeyPacket(living, stack, 2);
                 }
+                // NOTE: the client-side special-ability key poll that upstream ran here is dead in 26.1
+                // (inventoryTick is server-only now, so level.isClientSide() is always false). The poll now
+                // lives in ClientProxy#onFabricClientTick, which sends the ArmorKeyMessage handled below.
             }
         }
     }
