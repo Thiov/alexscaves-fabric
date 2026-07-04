@@ -204,6 +204,9 @@ public class ClientProxy extends CommonProxy {
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
             com.github.alexmodguy.alexscaves.client.render.hud.DarknessMeterHudElement.ID,
             new com.github.alexmodguy.alexscaves.client.render.hud.DarknessMeterHudElement());
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+            com.github.alexmodguy.alexscaves.client.render.hud.IrradiatedHeartHudElement.ID,
+            new com.github.alexmodguy.alexscaves.client.render.hud.IrradiatedHeartHudElement());
     }
 
     public static void registerFabricBuiltinItemRenderers() {
@@ -283,6 +286,33 @@ public class ClientProxy extends CommonProxy {
             lastSampledFogColor = Vec3.ZERO;
             lastSampledWaterFogColor = Vec3.ZERO;
             return;
+        }
+        // Darkness Incarnate trail buffer (upstream clientLivingTick). Records each afflicted entity's position
+        // into a 64-slot ring so ACPotionEffectLayer can draw the shadow ribbon behind it.
+        for (Entity rendered : minecraft.level.entitiesForRendering()) {
+            if (!(rendered instanceof LivingEntity living)) {
+                continue;
+            }
+            if (living.hasEffect(com.github.alexmodguy.alexscaves.server.potion.ACEffectRegistry.DARKNESS_INCARNATE)
+                    && living.isAlive()) {
+                int trailPointer = darknessTrailPointerMap.getOrDefault(living, -1);
+                Vec3 latest = living.position();
+                if (darknessTrailPosMap.get(living) == null) {
+                    Vec3[] fresh = new Vec3[64];
+                    if (trailPointer == -1) {
+                        java.util.Arrays.fill(fresh, latest);
+                    }
+                    darknessTrailPosMap.put(living, fresh);
+                }
+                if (++trailPointer == darknessTrailPosMap.get(living).length) {
+                    trailPointer = 0;
+                }
+                darknessTrailPointerMap.put(living, trailPointer);
+                darknessTrailPosMap.get(living)[trailPointer] = latest;
+            } else if (darknessTrailPosMap.containsKey(living)) {
+                darknessTrailPosMap.remove(living);
+                darknessTrailPointerMap.remove(living);
+            }
         }
         acSkyOverrideAmount = ACBiomeRegistry.calculateBiomeSkyOverride(cameraEntity);
         if (acSkyOverrideAmount > 0.0F) {
