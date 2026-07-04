@@ -361,6 +361,36 @@ public class ClientProxy extends CommonProxy {
             lastSampledFogColor = Vec3.ZERO;
             lastSampledWaterFogColor = Vec3.ZERO;
         }
+        // Beholder / camera-possession per-tick handling (upstream ClientEvents#onClientTick ~1150-1173).
+        // Drives the possession vignette strength AND, for the Beholder eye, feeds the local player's mouse
+        // look into the eye's synched rotation each tick so the possessed view can turn/look around. Without
+        // this the eye's Y_ROT/X_ROT never change, so the camera (which reads the eye's getViewYRot/XRot) is
+        // frozen and possessionStrengthAmount stays 0 (no shader/vignette).
+        float possessionPartialTicks = AlexsCaves.PROXY.getPartialTicks();
+        prevPossessionStrengthAmount = possessionStrengthAmount;
+        if (minecraft.getCameraEntity() instanceof com.github.alexmodguy.alexscaves.server.entity.util.PossessesCamera watcherEntity) {
+            if (watcherEntity.instant()) {
+                possessionStrengthAmount = watcherEntity.getPossessionStrength(possessionPartialTicks);
+            } else {
+                if (possessionStrengthAmount < watcherEntity.getPossessionStrength(possessionPartialTicks)) {
+                    possessionStrengthAmount = Math.min(possessionStrengthAmount + 0.2F,
+                            watcherEntity.getPossessionStrength(possessionPartialTicks));
+                } else {
+                    possessionStrengthAmount = Math.max(possessionStrengthAmount - 0.2F,
+                            watcherEntity.getPossessionStrength(possessionPartialTicks));
+                }
+            }
+            if (watcherEntity instanceof BeholderEyeEntity beholderEye && minecraft.player != null) {
+                beholderEye.setOldRots();
+                beholderEye.setEyeYRot(minecraft.player.getYHeadRot());
+                beholderEye.setEyeXRot(minecraft.player.getXRot());
+                if (AlexsCaves.PROXY.isKeyDown(4)) {
+                    AlexsCaves.PROXY.resetRenderViewEntity(minecraft.player);
+                }
+            }
+        } else if (possessionStrengthAmount > 0F) {
+            possessionStrengthAmount = Math.max(possessionStrengthAmount - 0.05F, 0F);
+        }
     }
 
     private static float calculateBiomeAmbientLight(Entity player) {

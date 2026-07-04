@@ -64,6 +64,34 @@ public abstract class LevelRendererMixin {
     }
 
     /**
+     * Draws the Holocoder / hologram projector holograms. Upstream drove
+     * {@code HologramProjectorBlockRenderer.renderEntireBatch} from the NeoForge
+     * {@code RenderLevelStageEvent}; the block-entity renderer only stashes visible projectors into a
+     * static map each frame and defers the actual hologram draw to that batch, so without this hook the
+     * projector renders nothing. Same capture-bridge pattern as the raygun beams: the projector's batch
+     * emits legacy immediate-mode geometry, which the {@link SubmitNodeBufferSource} replays into the 26.1
+     * submit pipeline. Hooked at {@code submitBlockDestroyAnimation} (which runs immediately after
+     * {@code submitBlockEntities}) rather than {@code submitEntities}, so the block-entity renderer has
+     * already populated {@code allOnScreen} for the current frame. The pose handed to us is the same
+     * camera-relative pose used by the entity/block-entity submits, and the batch shifts by
+     * {@code -cameraPos} then to each projector's world center, matching the raygun beam translation above.
+     */
+    @Inject(method = "submitBlockDestroyAnimation(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/LevelRenderState;)V", at = @At("HEAD"))
+    private void alexscaves$renderHolograms(PoseStack poseStack, SubmitNodeCollector collector, LevelRenderState levelRenderState, CallbackInfo ci) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        net.minecraft.client.Camera camera = minecraft.gameRenderer.getMainCamera();
+        SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
+        capture.bindLive(collector, poseStack);
+        com.github.alexmodguy.alexscaves.client.render.blockentity.HologramProjectorBlockRenderer.renderEntireBatch(
+                (LevelRenderer) (Object) this, poseStack, 0, camera, partialTick, capture);
+        capture.flushInto(collector, poseStack);
+    }
+
+    /**
      * Draws every Alex's Caves custom-geometry particle (3D models, ribbons/trails, lightning). Upstream drew
      * these from {@code Particle#render}, which 26.1 removed for non-quad particles; each such particle now
      * implements {@link com.github.alexmodguy.alexscaves.client.particle.RenderInWorldParticle} and registers

@@ -71,6 +71,11 @@ public abstract class CameraMixin {
     @Shadow
     private int matrixPropertiesDirty;
 
+    // Magnetic attachment is applied at the TAIL of alignWithEntity(float) (see ac_magneticAttachment
+    // below), NOT here. In 26.1 update() builds the cull frustum from the camera position BEFORE this
+    // TAIL runs, so overriding the position here left the frustum centered on the pre-magnet (wall) eye
+    // point, clipping/popping nearby geometry when attached to a non-DOWN/UP face (glitchy pillar climb).
+    // alignWithEntity runs before that frustum build, matching upstream's setup()-TAIL ordering.
     @Inject(
             method = {"Lnet/minecraft/client/Camera;update(Lnet/minecraft/client/DeltaTracker;)V"},
             remap = true,
@@ -81,21 +86,7 @@ public abstract class CameraMixin {
         if (entity == null) {
             return;
         }
-        boolean detatched = this.detached;
-        boolean mirrored = Minecraft.getInstance().options.getCameraType().isMirrored();
         float partialTicks = this.getCameraEntityPartialTicks(deltaTracker);
-
-        // Handle magnetic attachment
-        Direction dir = MagnetUtil.getEntityMagneticDirection(entity);
-        if (dir != Direction.DOWN && dir != Direction.UP) {
-            this.setPosition(MagnetUtil.getEyePositionForAttachment(entity, dir, partialTicks));
-            if (detatched) {
-                if (mirrored) {
-                    this.setRotation(this.yRot + 180.0F, -this.xRot);
-                }
-                this.move(-this.getMaxZoom(4.0F), 0.0F, 0.0F);
-            }
-        }
 
         // Handle screen shake - must be done at TAIL after the camera is positioned
         Entity player = Minecraft.getInstance().getCameraEntity();
@@ -149,6 +140,34 @@ public abstract class CameraMixin {
             // before this TAIL, so re-dirty them (as setRotation does with |= 3) or extractRenderState returns
             // the stale un-rolled matrix and nothing wobbles.
             this.matrixPropertiesDirty |= 3;
+        }
+    }
+
+    // Magnetic attachment: place the camera at the wall/ceiling-relative eye position. This is the 26.1
+    // analog of upstream's Camera#setup(...) TAIL override. It MUST run inside alignWithEntity (which
+    // update() calls before it builds the cull frustum from the camera position), so the frustum is
+    // centered on the corrected magnet eye point. Doing it at update()'s TAIL (post-frustum) left the
+    // frustum on the pre-magnet position and made nearby geometry pop/clip when climbing a magnetic
+    // pillar (non-DOWN/UP attachment face).
+    @Inject(
+            method = {"Lnet/minecraft/client/Camera;alignWithEntity(F)V"},
+            remap = true,
+            at = @At(value = "TAIL")
+    )
+    public void ac_magneticAttachment(float partialTicks, CallbackInfo ci) {
+        Entity entity = this.entity;
+        if (entity == null) {
+            return;
+        }
+        Direction dir = MagnetUtil.getEntityMagneticDirection(entity);
+        if (dir != Direction.DOWN && dir != Direction.UP) {
+            this.setPosition(MagnetUtil.getEyePositionForAttachment(entity, dir, partialTicks));
+            if (this.detached) {
+                if (Minecraft.getInstance().options.getCameraType().isMirrored()) {
+                    this.setRotation(this.yRot + 180.0F, -this.xRot);
+                }
+                this.move(-this.getMaxZoom(4.0F), 0.0F, 0.0F);
+            }
         }
     }
 

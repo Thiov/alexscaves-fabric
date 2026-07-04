@@ -41,7 +41,7 @@ public class HologramProjectorBlockRenderer<T extends HologramProjectorBlockEnti
     public HologramProjectorBlockRenderer(BlockEntityRendererProvider.Context rendererDispatcherIn) {
     }
 
-    public static void renderEntireBatch(LevelRenderer levelRenderer, PoseStack poseStack, int renderTick, Camera camera, float partialTick) {
+    public static void renderEntireBatch(LevelRenderer levelRenderer, PoseStack poseStack, int renderTick, Camera camera, float partialTick, MultiBufferSource bufferIn) {
         if (!allOnScreen.isEmpty()) {
             List<BlockPos> sortedPoses = new ArrayList<BlockPos>(allOnScreen.keySet());
             Collections.sort(sortedPoses, (blockPos1, blockPos2) -> sortBlockPos(camera, blockPos1, blockPos2));
@@ -49,13 +49,11 @@ public class HologramProjectorBlockRenderer<T extends HologramProjectorBlockEnti
             Vec3 cameraPos = camera.position();
             poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
             for (BlockPos pos : sortedPoses) {
-                MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
                 Vec3 blockAt = Vec3.atCenterOf(pos);
                 poseStack.pushPose();
                 poseStack.translate(blockAt.x, blockAt.y, blockAt.z);
-                renderAt(allOnScreen.get(pos), partialTick, poseStack, multibuffersource$buffersource);
+                renderAt(allOnScreen.get(pos), partialTick, poseStack, bufferIn);
                 poseStack.popPose();
-                multibuffersource$buffersource.endBatch();
             }
             poseStack.popPose();
         }
