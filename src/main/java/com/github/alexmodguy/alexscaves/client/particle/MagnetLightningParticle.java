@@ -21,7 +21,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector4f;
 
-public class MagnetLightningParticle extends net.minecraft.client.particle.TextureSheetParticle {
+public class MagnetLightningParticle extends net.minecraft.client.particle.TextureSheetParticle implements RenderInWorldParticle {
 
     private LightningRender lightningRender = new LightningRender();
 
@@ -45,6 +45,8 @@ public class MagnetLightningParticle extends net.minecraft.client.particle.Textu
                 .lifespan(this.lifetime + 1)
                 .spawn(LightningBoltData.SpawnFunction.CONSECUTIVE);
         lightningRender.update(this, bolt, 1.0F);
+    
+        ACParticleWorldRender.add(this);
     }
 
     public boolean shouldCull() {
@@ -84,8 +86,7 @@ public class MagnetLightningParticle extends net.minecraft.client.particle.Textu
     }
 
 
-    public void render(VertexConsumer consumer, Camera camera, float partialTick) {
-        MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+    public void renderInWorld(net.minecraft.client.renderer.MultiBufferSource multibuffersource$buffersource, Camera camera, float partialTick) {
         Vec3 cameraPos = camera.position();
         float x = (float) (Mth.lerp((double) partialTick, this.xo, this.x));
         float y = (float) (Mth.lerp((double) partialTick, this.yo, this.y));
@@ -95,13 +96,12 @@ public class MagnetLightningParticle extends net.minecraft.client.particle.Textu
         posestack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         posestack.translate(x, y, z);
         lightningRender.render(partialTick, posestack, multibuffersource$buffersource);
-        multibuffersource$buffersource.endBatch();
         posestack.popPose();
     }
 
     
     public ParticleRenderType getGroup() {
-        return ParticleRenderType.SINGLE_QUADS;
+        return ParticleRenderType.NO_RENDER;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -113,5 +113,11 @@ public class MagnetLightningParticle extends net.minecraft.client.particle.Textu
         public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, net.minecraft.util.RandomSource randomSourceCompat) {
             return new MagnetLightningParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed);
         }
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        ACParticleWorldRender.remove(this);
     }
 }

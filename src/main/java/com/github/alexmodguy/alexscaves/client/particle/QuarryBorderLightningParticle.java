@@ -18,7 +18,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector4f;
 
-public class QuarryBorderLightningParticle extends net.minecraft.client.particle.TextureSheetParticle {
+public class QuarryBorderLightningParticle extends net.minecraft.client.particle.TextureSheetParticle implements RenderInWorldParticle {
 
     private LightningRender lightningRender = new LightningRender();
     private static final Vector4f LIGHTNING_COLOR = new Vector4f(0.71F, 0.76F, 0.95F, 0.3F);
@@ -38,6 +38,8 @@ public class QuarryBorderLightningParticle extends net.minecraft.client.particle
                 .lifespan(this.lifetime)
                 .spawn(LightningBoltData.SpawnFunction.NO_DELAY);
         lightningRender.update(this, bolt, 1.0F);
+    
+        ACParticleWorldRender.add(this);
     }
 
     public boolean shouldCull() {
@@ -61,8 +63,7 @@ public class QuarryBorderLightningParticle extends net.minecraft.client.particle
     }
 
 
-    public void render(VertexConsumer consumer, Camera camera, float partialTick) {
-        MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+    public void renderInWorld(net.minecraft.client.renderer.MultiBufferSource multibuffersource$buffersource, Camera camera, float partialTick) {
         Vec3 cameraPos = camera.position();
         float x = (float) (Mth.lerp((double) partialTick, this.xo, this.x));
         float y = (float) (Mth.lerp((double) partialTick, this.yo, this.y));
@@ -72,13 +73,12 @@ public class QuarryBorderLightningParticle extends net.minecraft.client.particle
         posestack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         posestack.translate(x, y, z);
         lightningRender.render(partialTick, posestack, multibuffersource$buffersource);
-        multibuffersource$buffersource.endBatch();
         posestack.popPose();
     }
 
     
     public ParticleRenderType getGroup() {
-        return ParticleRenderType.SINGLE_QUADS;
+        return ParticleRenderType.NO_RENDER;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -90,5 +90,11 @@ public class QuarryBorderLightningParticle extends net.minecraft.client.particle
         public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, net.minecraft.util.RandomSource randomSourceCompat) {
             return new QuarryBorderLightningParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed);
         }
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        ACParticleWorldRender.remove(this);
     }
 }

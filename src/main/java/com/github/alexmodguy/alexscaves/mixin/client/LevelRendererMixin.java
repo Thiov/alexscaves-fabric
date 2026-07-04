@@ -64,14 +64,16 @@ public abstract class LevelRendererMixin {
     }
 
     /**
-     * Draws the nuclear mushroom-cloud 3D model(s). Upstream drew these from {@code Particle#render}, which
-     * 26.1 removed for custom (non-quad) particles; {@link com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle}
-     * now tracks its live instances and their model is rendered here through the same capture bridge as the
-     * raygun beams. The particle keeps ticking (sub-particles, sound, flash/shake) — only its model draw moves here.
+     * Draws every Alex's Caves custom-geometry particle (3D models, ribbons/trails, lightning). Upstream drew
+     * these from {@code Particle#render}, which 26.1 removed for non-quad particles; each such particle now
+     * implements {@link com.github.alexmodguy.alexscaves.client.particle.RenderInWorldParticle} and registers
+     * in {@link com.github.alexmodguy.alexscaves.client.particle.ACParticleWorldRender}. They keep ticking as
+     * normal (movement, sub-particles, sound); only their geometry draw moves here, through the same capture
+     * bridge as the raygun beams.
      */
     @Inject(method = "submitEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V", at = @At("TAIL"))
-    private void alexscaves$renderMushroomClouds(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeCollector collector, CallbackInfo ci) {
-        if (com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle.active().isEmpty()) {
+    private void alexscaves$renderCustomParticles(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeCollector collector, CallbackInfo ci) {
+        if (com.github.alexmodguy.alexscaves.client.particle.ACParticleWorldRender.active().isEmpty()) {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
@@ -79,11 +81,12 @@ public abstract class LevelRendererMixin {
             return;
         }
         float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        net.minecraft.client.Camera camera = minecraft.gameRenderer.getMainCamera();
         SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
         capture.bindLive(collector, poseStack);
-        for (com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle particle :
-                new java.util.ArrayList<>(com.github.alexmodguy.alexscaves.client.particle.MushroomCloudParticle.active())) {
-            particle.renderModel(poseStack, capture, partialTick);
+        for (com.github.alexmodguy.alexscaves.client.particle.RenderInWorldParticle particle :
+                new java.util.ArrayList<>(com.github.alexmodguy.alexscaves.client.particle.ACParticleWorldRender.active())) {
+            particle.renderInWorld(capture, camera, partialTick);
         }
         capture.flushInto(collector, poseStack);
     }

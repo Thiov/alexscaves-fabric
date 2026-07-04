@@ -25,16 +25,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-public class MushroomCloudParticle extends net.minecraft.client.particle.TextureSheetParticle {
-
-    // 26.1 removed ParticleRenderType.CUSTOM and Particle#render(VertexConsumer,Camera,float), so this
-    // particle's 3D model can no longer be drawn by the particle engine. Live instances are tracked here and
-    // drawn by LevelRendererMixin through the SubmitNodeBufferSource bridge (the same route as raygun beams).
-    private static final java.util.Set<MushroomCloudParticle> ACTIVE = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
-
-    public static java.util.Collection<MushroomCloudParticle> active() {
-        return ACTIVE;
-    }
+public class MushroomCloudParticle extends net.minecraft.client.particle.TextureSheetParticle implements RenderInWorldParticle {
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(AlexsCaves.MODID, "textures/particle/mushroom_cloud.png");
     private static final Identifier TEXTURE_GLOW = Identifier.fromNamespaceAndPath(AlexsCaves.MODID, "textures/particle/mushroom_cloud_glow.png");
@@ -59,7 +50,7 @@ public class MushroomCloudParticle extends net.minecraft.client.particle.Texture
         this.scale = scale + 0.2F;
         this.setSize(3.0F, 3.0F);
         this.pink = pink;
-        ACTIVE.add(this);
+        ACParticleWorldRender.add(this);
     }
 
     public boolean shouldCull() {
@@ -69,7 +60,7 @@ public class MushroomCloudParticle extends net.minecraft.client.particle.Texture
     @Override
     public void remove() {
         super.remove();
-        ACTIVE.remove(this);
+        ACParticleWorldRender.remove(this);
     }
 
     public void tick() {
@@ -123,11 +114,12 @@ public class MushroomCloudParticle extends net.minecraft.client.particle.Texture
      * pose stack. Called from LevelRendererMixin during {@code submitEntities}; the caller flushes the buffer,
      * so this must NOT call {@code endBatch()} or build its own pose stack (mirrors RaygunRenderHelper).
      */
-    public void renderModel(PoseStack posestack, MultiBufferSource bufferSource, float partialTick) {
-        Vec3 vec3 = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+    public void renderInWorld(MultiBufferSource bufferSource, Camera camera, float partialTick) {
+        Vec3 vec3 = camera.position();
         float f = (float) (Mth.lerp((double) partialTick, this.xo, this.x) - vec3.x());
         float f1 = (float) (Mth.lerp((double) partialTick, this.yo, this.y) - vec3.y());
         float f2 = (float) (Mth.lerp((double) partialTick, this.zo, this.z) - vec3.z());
+        PoseStack posestack = new PoseStack();
         posestack.pushPose();
         posestack.translate(f, f1 - 0.5F, f2);
         posestack.scale(-scale, -scale, scale);
