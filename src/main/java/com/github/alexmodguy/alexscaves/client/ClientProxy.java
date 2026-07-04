@@ -207,6 +207,9 @@ public class ClientProxy extends CommonProxy {
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
             com.github.alexmodguy.alexscaves.client.render.hud.IrradiatedHeartHudElement.ID,
             new com.github.alexmodguy.alexscaves.client.render.hud.IrradiatedHeartHudElement());
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+            com.github.alexmodguy.alexscaves.client.render.hud.RidingMeterHudElement.ID,
+            new com.github.alexmodguy.alexscaves.client.render.hud.RidingMeterHudElement());
     }
 
     public static void registerFabricBuiltinItemRenderers() {
