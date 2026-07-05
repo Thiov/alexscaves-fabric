@@ -1,5 +1,6 @@
 package com.github.alexmodguy.alexscaves.fabric;
 
+import com.github.alexmodguy.alexscaves.mixin.NaturalSpawnerMixin;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -13,6 +14,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public final class ACFabricEventBridge {
+
+    // How often (in ticks) the ongoing cave-creature spawn pass runs per level.
+    private static final int AC_CAVE_CREATURE_SPAWN_INTERVAL = 256;
 
     private ACFabricEventBridge() {
     }
@@ -63,6 +67,15 @@ public final class ACFabricEventBridge {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (var player : server.getPlayerList().getPlayers()) {
                 NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+            }
+            // Ongoing cave-creature respawn pass: dinos live in vanilla CREATURE (aliased CAVE_CREATURE),
+            // so vanilla's ongoing spawner never refills them underground. Run a cheap periodic pass per
+            // level that reuses the chunk-gen placement logic. The spawn logic itself is identical to the
+            // NeoForge port; only this tick-hook registration differs.
+            for (var level : server.getAllLevels()) {
+                if (level.getGameTime() % AC_CAVE_CREATURE_SPAWN_INTERVAL == 0) {
+                    NaturalSpawnerMixin.ac_ongoingCaveCreatureSpawnPass(level);
+                }
             }
         });
 
