@@ -1,6 +1,7 @@
 package com.github.alexmodguy.alexscaves.server.entity.living;
 
 import com.github.alexmodguy.alexscaves.server.entity.util.EntityCompat;
+import com.github.alexmodguy.alexscaves.server.entity.util.RendersOwnRider;
 
 import com.github.alexmodguy.alexscaves.AlexsCaves;
 import com.github.alexmodguy.alexscaves.client.particle.ACParticleRegistry;
@@ -63,7 +64,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.jetbrains.annotations.Nullable;
 
-public class CandicornEntity extends TamableAnimal implements KeybindUsingMount, IAnimatedEntity, PlayerRideableJumping, Saddleable, RidingMeterMount, PossessedByLicowitch {
+public class CandicornEntity extends TamableAnimal implements KeybindUsingMount, IAnimatedEntity, PlayerRideableJumping, Saddleable, RidingMeterMount, PossessedByLicowitch, RendersOwnRider {
 
     public static final Animation ANIMATION_BUCK = Animation.create(25);
     public static final Animation ANIMATION_TAIL_FLICK_1 = Animation.create(12);

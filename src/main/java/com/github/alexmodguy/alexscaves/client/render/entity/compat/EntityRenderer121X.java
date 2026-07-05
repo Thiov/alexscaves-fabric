@@ -42,6 +42,7 @@ public abstract class EntityRenderer121X<T extends Entity>
         if (s.ac_entity != null) {
             SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
             capture.bindLive(collector, poseStack);
+            capture.setCameraState(cameraRenderState);
             this.render((T) s.ac_entity, s.ac_yaw, s.ac_partialTicks, poseStack, capture, state.lightCoords);
             capture.flushInto(collector, poseStack);
         }
