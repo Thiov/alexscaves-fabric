@@ -54,7 +54,9 @@ public class LicowitchRenderer extends MobRenderer121X<LicowitchEntity, Licowitc
         this.addLayer(new TeleportingDoubleLayer());
     }
 
-    public static void renderEntireBatch(LevelRenderer levelRenderer, PoseStack posestack, int renderTick, Camera camera, float partialTick) {
+    // 26.1.2: draws into the caller-supplied MultiBufferSource (the LevelRendererMixin SubmitNodeBufferSource
+    // capture) instead of an immediate bufferSource(), which does not flush in the deferred level pass.
+    public static void renderEntireBatch(LevelRenderer levelRenderer, PoseStack posestack, int renderTick, Camera camera, float partialTick, MultiBufferSource bufferIn) {
         for (LicowitchEntity licowitch : allTeleportingLicowitchOnScreen) {
             Vec3 to = licowitch.getTeleportingToPos();
             float progress = licowitch.getTeleportingProgress(partialTick);
@@ -74,13 +76,16 @@ public class LicowitchRenderer extends MobRenderer121X<LicowitchEntity, Licowitc
                 posestack.translate(to.x, to.y + 1.5F, to.z);
                 posestack.scale(-scale, -scale, scale);
                 posestack.mulPose(Axis.YN.rotationDegrees(180 - bodyYaw));
-                MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+                MultiBufferSource bufferSource = bufferIn;
                 VertexConsumer textureBuffer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(LicowitchRenderer.TEXTURE));
                 TELEPORTING_MODEL.setupAnim(licowitch, licowitch.walkAnimation.position(partialTick), licowitch.walkAnimation.speed(partialTick), licowitch.tickCount + partialTick, netHeadYaw, headPitch);
                 TELEPORTING_MODEL.renderToBuffer(posestack, textureBuffer, 240, LivingEntityRenderer121X.getOverlayCoords(licowitch, 0.0F), ColorUtil.packColor(1.0F, 1.0F - (1F - progress), 1.0F, progress));
                 ACPostEffectRegistry.renderEffectForNextTick(ClientProxy.PURPLE_WITCH_SHADER);
                 VertexConsumer witchEffectBuffer = bufferSource.getBuffer(ACRenderTypes.getPurpleWitch(LicowitchRenderer.TEXTURE));
                 TELEPORTING_MODEL.renderToBuffer(posestack, witchEffectBuffer, 240, LivingEntityRenderer121X.getOverlayCoords(licowitch, 0.0F), ColorUtil.packColor(1.0F, 0.0F, 1.0F, progress));
+                // Additive pink/purple halo shell into the off-screen glow target (mirrors the irradiated shell bloom).
+                VertexConsumer witchGlowBuffer = bufferSource.getBuffer(ACRenderTypes.getPurpleWitchGlowShell(LicowitchRenderer.TEXTURE));
+                TELEPORTING_MODEL.renderToBuffer(posestack, witchGlowBuffer, 240, LivingEntityRenderer121X.getOverlayCoords(licowitch, 0.0F), ColorUtil.packColor(1.0F, 0.0F, 1.0F, progress));
                 posestack.popPose();
             }
         }
@@ -192,6 +197,8 @@ public class LicowitchRenderer extends MobRenderer121X<LicowitchEntity, Licowitc
                         this.getParentModel().renderToBuffer(poseStack, textureBuffer2, packedLightIn, LivingEntityRenderer121X.getOverlayCoords(witch, 0.0F), ColorUtil.packColor(1.0F, 1.0F - progress, 1.0F, progress));
                         VertexConsumer witchEffectBuffer2 = bufferIn.getBuffer(ACRenderTypes.getPurpleWitch(LicowitchRenderer.this.getTextureLocation(witch)));
                         this.getParentModel().renderToBuffer(poseStack, witchEffectBuffer2, packedLightIn, LivingEntityRenderer121X.getOverlayCoords(witch, 0.0F), ColorUtil.packColor(1.0F, 0.0F, 1.0F, progress));
+                        VertexConsumer witchGlowBuffer2 = bufferIn.getBuffer(ACRenderTypes.getPurpleWitchGlowShell(LicowitchRenderer.this.getTextureLocation(witch)));
+                        this.getParentModel().renderToBuffer(poseStack, witchGlowBuffer2, packedLightIn, LivingEntityRenderer121X.getOverlayCoords(witch, 0.0F), ColorUtil.packColor(1.0F, 0.0F, 1.0F, progress));
                     }
                 }
             }

@@ -41,6 +41,9 @@ public class HologramProjectorBlockRenderer<T extends HologramProjectorBlockEnti
     public HologramProjectorBlockRenderer(BlockEntityRendererProvider.Context rendererDispatcherIn) {
     }
 
+    // 26.1.2: draws into the caller-supplied MultiBufferSource (the LevelRendererMixin SubmitNodeBufferSource
+    // capture) instead of an immediate bufferSource()+endBatch(), which does not flush in the deferred level
+    // pass. The caller flushes the capture once after all batched renderers run.
     public static void renderEntireBatch(LevelRenderer levelRenderer, PoseStack poseStack, int renderTick, Camera camera, float partialTick, MultiBufferSource bufferIn) {
         if (!allOnScreen.isEmpty()) {
             List<BlockPos> sortedPoses = new ArrayList<BlockPos>(allOnScreen.keySet());

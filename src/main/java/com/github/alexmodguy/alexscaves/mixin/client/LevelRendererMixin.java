@@ -1,8 +1,14 @@
 package com.github.alexmodguy.alexscaves.mixin.client;
 
+import com.github.alexmodguy.alexscaves.AlexsCaves;
+import com.github.alexmodguy.alexscaves.client.render.blockentity.AmbersolBlockRenderer;
+import com.github.alexmodguy.alexscaves.client.render.blockentity.HologramProjectorBlockRenderer;
 import com.github.alexmodguy.alexscaves.client.render.compat.SubmitNodeBufferSource;
+import com.github.alexmodguy.alexscaves.client.render.entity.CorrodentRenderer;
+import com.github.alexmodguy.alexscaves.client.render.entity.LicowitchRenderer;
 import com.github.alexmodguy.alexscaves.client.render.item.RaygunRenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -72,44 +78,28 @@ public abstract class LevelRendererMixin {
             RaygunRenderHelper.renderRaysFor(living, entityPos, poseStack, capture, partialTick, false, 0);
             poseStack.popPose();
         }
-        capture.flushInto(collector, poseStack);
-    }
-
-    /**
-     * Draws the Holocoder / hologram projector holograms. Upstream drove
-     * {@code HologramProjectorBlockRenderer.renderEntireBatch} from the NeoForge
-     * {@code RenderLevelStageEvent}; the block-entity renderer only stashes visible projectors into a
-     * static map each frame and defers the actual hologram draw to that batch, so without this hook the
-     * projector renders nothing. Same capture-bridge pattern as the raygun beams: the projector's batch
-     * emits legacy immediate-mode geometry, which the {@link SubmitNodeBufferSource} replays into the 26.1
-     * submit pipeline. Hooked at {@code submitBlockDestroyAnimation} (which runs immediately after
-     * {@code submitBlockEntities}) rather than {@code submitEntities}, so the block-entity renderer has
-     * already populated {@code allOnScreen} for the current frame. The pose handed to us is the same
-     * camera-relative pose used by the entity/block-entity submits, and the batch shifts by
-     * {@code -cameraPos} then to each projector's world center, matching the raygun beam translation above.
-     */
-    @Inject(method = "submitBlockDestroyAnimation(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/LevelRenderState;)V", at = @At("HEAD"))
-    private void alexscaves$renderHolograms(PoseStack poseStack, SubmitNodeCollector collector, LevelRenderState levelRenderState, CallbackInfo ci) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) {
-            return;
+        // Restore the batched world renderers upstream drew from RenderLevelStageEvent (AFTER_ENTITIES /
+        // AFTER_TRANSLUCENT_BLOCKS). Their registered .render() populates the batch maps every frame, but the
+        // renderEntireBatch flush had no caller on 26.1.2 — so holograms, the corrodent corrosion overlay, the
+        // licowitch teleport double and the ambersol shine never drew. Each does its own camera-relative
+        // translate and bakes the pose into vertices, so route them through the same capture as the raygun.
+        Camera camera = minecraft.gameRenderer.getMainCamera();
+        LevelRenderer levelRenderer = (LevelRenderer) (Object) this;
+        HologramProjectorBlockRenderer.renderEntireBatch(levelRenderer, poseStack, 0, camera, partialTick, capture);
+        CorrodentRenderer.renderEntireBatch(levelRenderer, poseStack, 0, camera, partialTick, capture);
+        LicowitchRenderer.renderEntireBatch(levelRenderer, poseStack, 0, camera, partialTick, capture);
+        if (AlexsCaves.CLIENT_CONFIG.ambersolShines.get()) {
+            AmbersolBlockRenderer.renderEntireBatch(levelRenderer, poseStack, 0, camera, partialTick, capture);
         }
-        float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        net.minecraft.client.Camera camera = minecraft.gameRenderer.getMainCamera();
-        SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
-        capture.bindLive(collector, poseStack);
-        com.github.alexmodguy.alexscaves.client.render.blockentity.HologramProjectorBlockRenderer.renderEntireBatch(
-                (LevelRenderer) (Object) this, poseStack, 0, camera, partialTick, capture);
         capture.flushInto(collector, poseStack);
     }
 
     /**
-     * Draws every Alex's Caves custom-geometry particle (3D models, ribbons/trails, lightning). Upstream drew
-     * these from {@code Particle#render}, which 26.1 removed for non-quad particles; each such particle now
-     * implements {@link com.github.alexmodguy.alexscaves.client.particle.RenderInWorldParticle} and registers
-     * in {@link com.github.alexmodguy.alexscaves.client.particle.ACParticleWorldRender}. They keep ticking as
-     * normal (movement, sub-particles, sound); only their geometry draw moves here, through the same capture
-     * bridge as the raygun beams.
+     * Draws every Alex's Caves custom-geometry particle (3D models, ribbons/trails, lightning). 26.1 removed
+     * {@code Particle#render} for non-quad particles; each such particle now implements
+     * {@link com.github.alexmodguy.alexscaves.client.particle.RenderInWorldParticle} and registers in
+     * {@link com.github.alexmodguy.alexscaves.client.particle.ACParticleWorldRender}. They keep ticking as
+     * normal; only their geometry draw moves here, through the same capture bridge as the raygun beams.
      */
     @Inject(method = "submitEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V", at = @At("TAIL"))
     private void alexscaves$renderCustomParticles(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeCollector collector, CallbackInfo ci) {
@@ -121,7 +111,7 @@ public abstract class LevelRendererMixin {
             return;
         }
         float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        net.minecraft.client.Camera camera = minecraft.gameRenderer.getMainCamera();
+        Camera camera = minecraft.gameRenderer.getMainCamera();
         SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
         capture.bindLive(collector, poseStack);
         for (com.github.alexmodguy.alexscaves.client.particle.RenderInWorldParticle particle :
