@@ -13,34 +13,36 @@ import net.minecraft.world.entity.Entity;
 
 public abstract class EntityRenderer121X<T extends Entity>
         extends net.minecraft.client.renderer.entity.EntityRenderer<T, EntityRenderState> {
-    protected T currentEntity;
-    protected float currentEntityYaw;
-    protected float currentPartialTicks;
-
     protected EntityRenderer121X(EntityRendererProvider.Context context) {
         super(context);
     }
 
-    
+    @Override
     public EntityRenderState createRenderState() {
-        return new EntityRenderState();
+        return new EntityRenderState121X();
     }
 
-    
+    @Override
     public void extractRenderState(T entity, EntityRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
-        this.currentEntity = entity;
-        this.currentPartialTicks = partialTicks;
-        this.currentEntityYaw = Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
+        // Store the live entity + interpolated yaw on the PER-ENTITY state (not a shared renderer field) so
+        // each entity submits from ITS OWN data — 26.1 extracts every render state before submitting any, so
+        // a shared field held the last-extracted entity and all instances rendered as that one.
+        EntityRenderState121X s = (EntityRenderState121X) state;
+        s.ac_entity = entity;
+        s.ac_partialTicks = partialTicks;
+        s.ac_yaw = Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
     }
 
-    
+    @Override
+    @SuppressWarnings("unchecked")
     public void submit(EntityRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraRenderState) {
         super.submit(state, poseStack, collector, cameraRenderState);
-        if (currentEntity != null) {
+        EntityRenderState121X s = (EntityRenderState121X) state;
+        if (s.ac_entity != null) {
             SubmitNodeBufferSource capture = new SubmitNodeBufferSource();
             capture.bindLive(collector, poseStack);
-            this.render(currentEntity, currentEntityYaw, currentPartialTicks, poseStack, capture, state.lightCoords);
+            this.render((T) s.ac_entity, s.ac_yaw, s.ac_partialTicks, poseStack, capture, state.lightCoords);
             capture.flushInto(collector, poseStack);
         }
     }
