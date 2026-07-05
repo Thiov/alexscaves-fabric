@@ -74,7 +74,7 @@ public final class ACFabricEventBridge {
             // NeoForge port; only this tick-hook registration differs.
             for (var level : server.getAllLevels()) {
                 if (level.getGameTime() % AC_CAVE_CREATURE_SPAWN_INTERVAL == 0) {
-                    NaturalSpawnerMixin.ac_ongoingCaveCreatureSpawnPass(level);
+                    com.github.alexmodguy.alexscaves.server.misc.CaveCreatureSpawnHelper.ongoingPass(level);
                 }
             }
         });
