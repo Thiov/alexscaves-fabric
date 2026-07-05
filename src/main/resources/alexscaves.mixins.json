@@ -67,6 +67,7 @@
     "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
     "client.DeltaTrackerTimerMixin",
+    "client.EntityRenderDispatcherMixin",
     "client.FogRendererMixin",
     "client.GameRendererAccessor",
     "client.GameRendererMixin",

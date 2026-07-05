@@ -85,16 +85,8 @@ public abstract class VanillaLivingEntityRendererMixin {
         }
 
         effectState.alexscaves$setSugarRush(entity.hasEffect(ACEffectRegistry.SUGAR_RUSH));
-
-        // Fabric's HumanoidMobRenderer sets isPassenger = entity.isPassenger() unconditionally (upstream's
-        // shouldRiderSit() gate is NeoForge-only), so riders of no-sit mounts wrongly get the sitting leg-tuck.
-        // Clear it here for vehicles that opt out via NoSitRider.
-        if (state instanceof net.minecraft.client.renderer.entity.state.HumanoidRenderState hrs) {
-            net.minecraft.world.entity.Entity v = entity.getVehicle();
-            if (v instanceof com.github.alexmodguy.alexscaves.server.entity.util.NoSitRider nsr && !nsr.shouldRiderSit()) {
-                hrs.isPassenger = false;
-            }
-        }
+        // NoSitRider (no-sit) pose fix moved to EntityRenderDispatcherMixin#extractEntity RETURN: HumanoidMobRenderer
+        // sets isPassenger AFTER super.extractRenderState, so clearing it here (base TAIL) was overwritten.
     }
 
     /**
