@@ -1,0 +1,5 @@
+{
+  "alexscaves:multipart": {
+    "initializer": "com.github.alexmodguy.alexscaves.compat.wthit.ACWailaPlugin"
+  }
+}

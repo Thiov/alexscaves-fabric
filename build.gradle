@@ -25,6 +25,15 @@ repositories {
         url = 'https://cursemaven.com'
         content { includeGroup 'curse.maven' }
     }
+    maven {
+        // WTHIT (WAILA fork) API for the optional compat plugin.
+        name = 'BadAsIntended'
+        url = 'https://maven2.bai.lol'
+        content {
+            includeGroup 'mcp.mobius.waila'
+            includeGroup 'lol.bai'
+        }
+    }
     mavenCentral()
 }
 
@@ -36,6 +45,10 @@ dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    // Optional WTHIT compat (wthit_plugins.json is only read when WTHIT is installed; the plugin class is
+    // only classloaded then, so compileOnly keeps the mod dependency-free). Non-remapping build: 26.x is
+    // non-obfuscated, so the published fabric artifact's names match ours directly.
+    compileOnly("mcp.mobius.waila:wthit-api:fabric-19.0.1") { transitive = false }
 
     compileOnly "mezz.jei:jei-26.1-fabric-api:${jei_version}"
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
