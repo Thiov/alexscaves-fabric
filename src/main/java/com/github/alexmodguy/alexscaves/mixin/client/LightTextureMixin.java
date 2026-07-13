@@ -5,8 +5,8 @@ package com.github.alexmodguy.alexscaves.mixin.client;
  * was rewritten), so this mixin can no longer target it. It is neutralized to an empty, non-mixin
  * class and removed from the 26.1 alexscaves.mixins.json overlay.
  *
- * DEGRADATION: the biome-ambient-light / Deepsight / primordial-boss brightness boosting that this
- * mixin provided is dropped on 26.1.
+ * Its brightness boosting (biome ambient light / Deepsight / primordial boss) was RESTORED in
+ * LightmapRenderStateExtractorMixin (v2.0.2-29/-34) — this class remains only as a placeholder.
  */
 public final class LightTextureMixin {
     private LightTextureMixin() {
