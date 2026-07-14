@@ -20,13 +20,22 @@ public class ACWailaPlugin implements IWailaPlugin {
 
     @Override
     public void register(IRegistrar registrar) {
-        registrar.addOverride(new PartOverrideProvider(), PartEntity.class);
+        // Never let an optional-compat registration take the whole game down at startup (a WTHIT API/version
+        // mismatch or an internal WTHIT change would otherwise crash on launch when both mods are present).
+        try {
+            registrar.addOverride(new PartOverrideProvider(), PartEntity.class);
+        } catch (Throwable t) {
+            com.github.alexmodguy.alexscaves.AlexsCaves.LOGGER.warn("Failed to register Alex's Caves WTHIT compat (multipart tooltip override); the rest of WTHIT is unaffected.", t);
+        }
     }
 
     private static final class PartOverrideProvider implements IEntityComponentProvider {
         @Override
         public Entity getOverride(IEntityAccessor accessor, IPluginConfig config) {
-            return accessor.<PartEntity<?>>getEntity().getParent();
+            if (accessor.getEntity() instanceof PartEntity<?> part) {
+                return part.getParent();
+            }
+            return null;
         }
     }
 }
