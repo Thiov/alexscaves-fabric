@@ -35,6 +35,7 @@
     "LivingEntityEquipSoundMixin",
     "LivingEntityFluidMixin",
     "LivingEntityMixin",
+    "EntityFluidTrackingMixin",
     "LivingEntityTemptRangeMixin",
     "MobMixin",
     "MonsterMixin",
