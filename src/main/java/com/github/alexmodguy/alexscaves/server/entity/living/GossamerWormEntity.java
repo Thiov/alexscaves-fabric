@@ -79,6 +79,7 @@ public class GossamerWormEntity extends WaterAnimal implements Bucketable, Multi
 
 
     
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(FROM_BUCKET, false);
@@ -262,10 +263,12 @@ public class GossamerWormEntity extends WaterAnimal implements Bucketable, Multi
     }
 
 
+    @Override
     public boolean isMultipartEntity() {
         return true;
     }
 
+    @Override
     public PartEntity<?>[] getParts() {
         return allParts;
     }
@@ -281,6 +284,7 @@ public class GossamerWormEntity extends WaterAnimal implements Bucketable, Multi
     }
 
     
+    @Override
     public void saveToBucketTag(@Nonnull ItemStack bucket) {
         if (this.hasCustomName()) {
             bucket.set(DataComponents.CUSTOM_NAME, this.getCustomName());
@@ -302,17 +306,20 @@ public class GossamerWormEntity extends WaterAnimal implements Bucketable, Multi
     }
 
     
+    @Override
     public boolean fromBucket() {
         return this.entityData.get(FROM_BUCKET);
     }
 
     
+    @Override
     public void setFromBucket(boolean sit) {
         this.entityData.set(FROM_BUCKET, sit);
     }
 
 
     
+    @Override
     public void loadFromBucketTag(@Nonnull CompoundTag compound) {
         if (com.github.alexmodguy.alexscaves.server.misc.NbtCompat.contains(compound, "FishBucketTag")) {
             this.readAdditionalSaveData(com.github.alexmodguy.alexscaves.server.misc.NbtCompat.asValueInput(this.registryAccess(), com.github.alexmodguy.alexscaves.server.misc.NbtCompat.getCompound(compound, "FishBucketTag")));
@@ -321,12 +328,14 @@ public class GossamerWormEntity extends WaterAnimal implements Bucketable, Multi
     }
 
     
+    @Override
     public ItemStack getBucketItemStack() {
         return new ItemStack(ACItemRegistry.GOSSAMER_WORM_BUCKET.get());
     }
 
     
     @Nonnull
+    @Override
     public SoundEvent getPickupSound() {
         return SoundEvents.BUCKET_FILL_FISH;
     }
@@ -356,11 +365,13 @@ public class GossamerWormEntity extends WaterAnimal implements Bucketable, Multi
         private Vec3 fleeTarget = null;
 
         
+        @Override
         public boolean canUse() {
             return GossamerWormEntity.this.hurtPos != null && GossamerWormEntity.this.fleeFor > 0;
         }
 
         
+        @Override
         public void start() {
             fleeTarget = null;
         }

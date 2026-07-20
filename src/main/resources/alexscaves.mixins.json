@@ -76,6 +76,7 @@
     "client.ItemFrameRendererMixin",
     "client.ItemInHandRendererAccessor",
     "client.ItemModelsMixin",
+    "client.AbstractMinecartRendererMixin",
     "client.RangeSelectItemModelPropertiesMixin",
     "client.ItemTintSourcesMixin",
     "client.LevelRendererMixin",

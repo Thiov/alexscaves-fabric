@@ -73,6 +73,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Cat.class, 10.0F, 1.0D, 1.2D) {
+            @Override
             public void tick() {
                 super.tick();
                 GumbeeperEntity.this.catScareTime = 20;
@@ -100,6 +101,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(EXPLODING, false);
@@ -111,6 +113,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     public void tick(){
         super.tick();
         prevExplodeProgress = explodeProgress;
@@ -180,6 +183,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     public void calculateEntityAnimation(boolean flying) {
         float f1 = (float) Mth.length(this.getX() - this.xo, flying ? this.getY() - this.yo : 0, this.getZ() - this.zo);
         float f2 = Math.min(f1 * 8.0F, 1.0F);
@@ -187,6 +191,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         if (itemstack.is(ItemTags.CREEPER_IGNITERS)) {
@@ -241,16 +246,19 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     public void setPossessedByLicowitchId(int entityId) {
         this.entityData.set(POSSESSOR_LICOWITCH_ID, entityId);
     }
 
     
+    @Override
     public int getPossessedByLicowitchId() {
         return this.entityData.get(POSSESSOR_LICOWITCH_ID);
     }
 
     
+    @Override
     public boolean canAttack(LivingEntity living) {
         if(this.getPossessedByLicowitchId() != -1){
             LicowitchEntity licowitch = this.getPossessingLicowitch(this.level());
@@ -346,6 +354,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
         super.dropCustomDeathLoot(level, damageSource, recentlyHit);
         if (damageSource.getEntity() instanceof CaniacEntity) {
@@ -354,6 +363,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
     }
 
     
+    @Override
     public boolean isPowered() {
         return this.isCharged();
     }
@@ -382,6 +392,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
         }
 
         
+        @Override
         public boolean canUse() {
             LivingEntity target = GumbeeperEntity.this.getTarget();
             return target != null && target.isAlive();
@@ -397,6 +408,7 @@ public class GumbeeperEntity extends Monster implements PowerableMob, PossessedB
         }
 
         
+        @Override
         public void tick() {
             LivingEntity target = GumbeeperEntity.this.getTarget();
             boolean canRange = GumbeeperEntity.this.getGumballsLeft() > 0;

@@ -41,6 +41,7 @@ public class ACArmorRenderProperties implements IClientItemExtensions {
     }
 
 
+    @Override
     public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot armorSlot, HumanoidModel<?> _default) {
         if (!init) {
             initializeModels();

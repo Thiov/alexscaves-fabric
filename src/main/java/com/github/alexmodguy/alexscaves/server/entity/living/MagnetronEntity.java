@@ -118,6 +118,7 @@ public class MagnetronEntity extends Monster implements MultiPartEntity {
 
 
     
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(BLOCKSTATES, new CompoundTag());
@@ -176,6 +177,7 @@ public class MagnetronEntity extends Monster implements MultiPartEntity {
         return true;
     }
 
+    @Override
     public PartEntity<?>[] getParts() {
         return allParts;
     }
@@ -655,6 +657,7 @@ public class MagnetronEntity extends Monster implements MultiPartEntity {
     }
 
     
+    @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
     }
 
@@ -736,6 +739,7 @@ public class MagnetronEntity extends Monster implements MultiPartEntity {
         }
 
         
+        @Override
         public boolean canUse() {
             LivingEntity target = MagnetronEntity.this.getTarget();
             return target != null && target.isAlive();

@@ -491,6 +491,7 @@ public class ClientProxy extends CommonProxy {
 
     @SuppressWarnings("removal")
     
+    @Override
     public void commonInit(IEventBus modEventBus) {
         if (modEventBus == null) {
             this.setupParticles(new RegisterParticleProvidersEvent());
@@ -516,6 +517,7 @@ public class ClientProxy extends CommonProxy {
 
     @SuppressWarnings("removal")
     
+    @Override
     public void clientInit(IEventBus modEventBus) {
         NeoForge.EVENT_BUS.register(new ClientEvents());
         if (modEventBus == null) {
@@ -995,11 +997,13 @@ public class ClientProxy extends CommonProxy {
     }
 
     
+    @Override
     public Object getISTERProperties() {
         return isterProperties;
     }
 
     
+    @Override
     public Object getArmorProperties() {
         return armorProperties;
     }
@@ -1042,11 +1046,13 @@ public class ClientProxy extends CommonProxy {
     }
 
     
+    @Override
     public boolean hasBubbledEffectVisual(int entityId) {
         return BUBBLED_EFFECT_TICKS.getOrDefault(entityId, 0) > 0;
     }
 
     
+    @Override
     public void setBubbledEffectTicks(int entityId, int ticks) {
         if (ticks <= 0) {
             BUBBLED_EFFECT_TICKS.remove(entityId);
@@ -1056,6 +1062,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     
+    @Override
     public void handleBeholderSync(int beholderId, boolean active, double x, double y, double z, float yRot, float xRot, UUID usingPlayerUUID) {
         Player playerSided = getClientSidePlayer();
         if (playerSided != null && playerSided.level() instanceof ClientLevel clientLevel) {
@@ -1090,6 +1097,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     
+    @Override
     public void playWorldSound(@Nullable Object soundEmitter, byte type) {
         if (soundEmitter instanceof Entity entity && !entity.level().isClientSide()) {
             return;
@@ -1583,6 +1591,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     
+    @Override
     public Vec3 getCameraRotation() {
         return Vec3.ZERO;
     }
@@ -1624,6 +1633,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     
+    @Override
     public boolean isFarFromCamera(double x, double y, double z) {
         return Minecraft.getInstance().gameRenderer.getMainCamera().position().distanceToSqr(x, y, z) >= 256.0D;
     }

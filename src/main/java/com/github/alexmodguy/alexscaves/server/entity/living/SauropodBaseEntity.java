@@ -119,6 +119,7 @@ public abstract class SauropodBaseEntity extends DinosaurEntity implements Shake
     }
 
     
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(WALKING, false);
@@ -133,6 +134,7 @@ public abstract class SauropodBaseEntity extends DinosaurEntity implements Shake
     }
 
     
+    @Override
     public void tick() {
         super.tick();
         AnimationHandler.INSTANCE.updateAnimations(this);
@@ -403,10 +405,12 @@ public abstract class SauropodBaseEntity extends DinosaurEntity implements Shake
         }
     }
 
+    @Override
     public boolean isMultipartEntity() {
         return true;
     }
 
+    @Override
     public PartEntity<?>[] getParts() {
         return allParts;
     }
@@ -588,26 +592,31 @@ public abstract class SauropodBaseEntity extends DinosaurEntity implements Shake
     }
 
     
+    @Override
     public int getAnimationTick() {
         return animationTick;
     }
 
     
+    @Override
     public void setAnimationTick(int tick) {
         animationTick = tick;
     }
 
     
+    @Override
     public Animation getAnimation() {
         return currentAnimation;
     }
 
     
+    @Override
     public void setAnimation(Animation animation) {
         currentAnimation = animation;
     }
 
     
+    @Override
     public Animation[] getAnimations() {
         return new Animation[]{ANIMATION_SPEAK, ANIMATION_ROAR, ANIMATION_EPIC_DEATH, ANIMATION_SUMMON, ANIMATION_STOMP, ANIMATION_SPEW_FLAMES, ANIMATION_JUMP, ANIMATION_LEFT_KICK, ANIMATION_RIGHT_KICK, ANIMATION_LEFT_WHIP, ANIMATION_RIGHT_WHIP, ANIMATION_EAT_LEAVES};
     }
@@ -637,6 +646,7 @@ public abstract class SauropodBaseEntity extends DinosaurEntity implements Shake
     }
 
     
+    @Override
     public int getMaxNavigableDistanceToGround() {
         return 3;
     }
@@ -648,6 +658,7 @@ public abstract class SauropodBaseEntity extends DinosaurEntity implements Shake
         }
 
         
+        @Override
         public void tick() {
             if (this.operation == Operation.WAIT) {
                 SauropodBaseEntity.this.entityData.set(WALKING, false);

@@ -65,6 +65,7 @@ public class SirenLightBlockEntity extends BlockEntity {
     }
 
     
+    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -101,6 +102,7 @@ public class SirenLightBlockEntity extends BlockEntity {
     }
 
     
+    @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return this.saveWithoutMetadata(registries);
     }

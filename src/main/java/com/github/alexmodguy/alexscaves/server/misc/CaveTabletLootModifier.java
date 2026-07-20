@@ -57,6 +57,7 @@ public class CaveTabletLootModifier implements IGlobalLootModifier {
 
     @NotNull
     
+    @Override
     public ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         return this.orConditions.test(context) ? this.doApply(generatedLoot, context) : generatedLoot;
     }
@@ -110,6 +111,7 @@ public class CaveTabletLootModifier implements IGlobalLootModifier {
     }
 
     
+    @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
         return CODEC;
     }

@@ -190,6 +190,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(BEAM_END_POSITION, Optional.empty());
@@ -621,6 +622,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public void calculateEntityAnimation(boolean flying) {
         float f1 = (float) Mth.length(this.getX() - this.lastStompX, 0, this.getZ() - this.lastStompZ);
         float walkSpeed = 4.0F;
@@ -632,6 +634,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public void aiStep() {
         super.aiStep();
         if (!this.level().isClientSide()) {
@@ -997,11 +1000,13 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public boolean isPushable() {
         return false;
     }
 
     
+    @Override
     public void push(Entity entity) {
         if (!this.isPassengerOfSameVehicle(entity)) {
             if (!entity.noPhysics && !this.noPhysics) {
@@ -1057,20 +1062,24 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public BlockState createEggBlockState() {
         return ACBlockRegistry.TREMORZILLA_EGG.get().defaultBlockState();
     }
 
+    @Override
     public boolean isMultipartEntity() {
         return true;
     }
 
+    @Override
     public PartEntity<?>[] getParts() {
         return allParts;
     }
 
     @Nullable
     
+    @Override
     public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
         return ACEntityRegistry.TREMORZILLA.get().create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.EVENT);
     }
@@ -1090,6 +1099,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
         return true;
     }
 
+    @Override
     public void onKeyPacket(Entity keyPresser, int type) {
         if (keyPresser.isPassengerOfSameVehicle(this)) {
             if (type == 2) {
@@ -1128,11 +1138,13 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public boolean shouldStopBlaringSirens() {
         return !this.isPowered() || this.getSpikesDownAmount() <= 0 || this.isRemoved();
     }
 
     
+    @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         InteractionResult prev = super.mobInteract(player, hand);
         if (prev != InteractionResult.SUCCESS) {
@@ -1156,6 +1168,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity living) {
         return new Vec3(this.getX(), this.getBoundingBox().minY, this.getZ());
     }
@@ -1266,21 +1279,25 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public int getAnimationTick() {
         return animationTick;
     }
 
     
+    @Override
     public void setAnimationTick(int tick) {
         animationTick = tick;
     }
 
     
+    @Override
     public Animation getAnimation() {
         return currentAnimation;
     }
 
     
+    @Override
     public void setAnimation(Animation animation) {
         currentAnimation = animation;
     }
@@ -1298,6 +1315,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public Animation[] getAnimations() {
         return new Animation[]{ANIMATION_SPEAK, ANIMATION_ROAR_1, ANIMATION_ROAR_2, ANIMATION_RIGHT_SCRATCH, ANIMATION_LEFT_SCRATCH, ANIMATION_RIGHT_TAIL, ANIMATION_LEFT_TAIL, ANIMATION_RIGHT_STOMP, ANIMATION_LEFT_STOMP, ANIMATION_BITE, ANIMATION_PREPARE_BREATH, ANIMATION_CHEW};
     }
@@ -1311,6 +1329,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public EntityDimensions getDefaultDimensions(Pose poseIn) {
         return this.isTremorzillaSwimming() ? SWIMMING_SIZE.scale(this.getScale()) : super.getDefaultDimensions(poseIn);
     }
@@ -1422,6 +1441,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public int getMaxNavigableDistanceToGround() {
         return 4;
     }
@@ -1431,6 +1451,7 @@ public class TremorzillaEntity extends DinosaurEntity implements KeybindUsingMou
     }
 
     
+    @Override
     public BlockState createEggBeddingBlockState() {
         return ACBlockRegistry.UNREFINED_WASTE.get().defaultBlockState();
     }

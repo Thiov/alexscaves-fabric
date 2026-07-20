@@ -79,6 +79,7 @@ public class QuarrySmasherEntity extends Entity implements MultiPartEntity {
     }
 
     
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(QUARRY_POS, Optional.empty());
         builder.define(TARGET_POS, Optional.empty());
@@ -88,6 +89,7 @@ public class QuarrySmasherEntity extends Entity implements MultiPartEntity {
     }
 
     
+    @Override
     public void tick() {
         tickMultipart();
         super.tick();
@@ -220,6 +222,7 @@ public class QuarrySmasherEntity extends Entity implements MultiPartEntity {
     }
 
     
+    @Override
     protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
         if (com.github.alexmodguy.alexscaves.server.entity.util.EntityCompat.isControlledByLocalInstance(this) && this.lSteps > 0) {
@@ -350,6 +353,7 @@ public class QuarrySmasherEntity extends Entity implements MultiPartEntity {
     }
 
     
+    @Override
     protected Entity.MovementEmission getMovementEmission() {
         return MovementEmission.EVENTS;
     }
@@ -394,10 +398,12 @@ public class QuarrySmasherEntity extends Entity implements MultiPartEntity {
         super.remove(removalReason);
     }
 
+    @Override
     public boolean isMultipartEntity() {
         return true;
     }
 
+    @Override
     public PartEntity<?>[] getParts() {
         return allParts;
     }

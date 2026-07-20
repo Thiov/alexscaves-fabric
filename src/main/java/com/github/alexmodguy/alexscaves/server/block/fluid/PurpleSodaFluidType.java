@@ -37,6 +37,7 @@ public class PurpleSodaFluidType extends FluidType {
     }
 
     
+    @Override
     public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
         consumer.accept(new IClientFluidTypeExtensions() {
             
@@ -85,11 +86,13 @@ public class PurpleSodaFluidType extends FluidType {
     }
 
     
+    @Override
     public boolean isVaporizedOnPlacement(Level level, BlockPos pos, FluidStack stack) {
         return false;
     }
 
     
+    @Override
     public void onVaporize(@Nullable Player player, Level level, BlockPos pos, FluidStack stack) {
         SoundEvent sound = this.getSound(player, level, pos, SoundActions.FLUID_VAPORIZE);
         level.playSound(player, pos, sound != null ? sound : SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.8F);
